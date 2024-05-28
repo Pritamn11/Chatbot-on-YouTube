@@ -9,6 +9,7 @@ from langchain.embeddings import SentenceTransformerEmbeddings
 from langchain. vectorstores import Chroma
 from langchain.llms import HuggingFacePipeline
 from langchain.chains import RetrievalQA
+from accelerate import disk_offload
 import os
 
 
@@ -25,9 +26,11 @@ model = AutoModelForSeq2SeqLM.from_pretrained(
     checkpoint,
     device_map="auto",
     torch_dtype=torch.float32,
+    low_cpu_mem_usage = True,
     offload_folder="offload"
 
 )
+
 
 
 def llm_pipeline():
@@ -44,6 +47,8 @@ def llm_pipeline():
 
     local_llm=HuggingFacePipeline(pipeline=pipe)
     return local_llm
+
+disk_offload(model=model, offload_dir="offload")
 
 
 def qa_llm():
@@ -71,7 +76,9 @@ def process_answer(instruction):
     return answer, generated_text
 
 
-
+@app.route("/")
+def index():
+    return render_template("chat.html")
 
 
 

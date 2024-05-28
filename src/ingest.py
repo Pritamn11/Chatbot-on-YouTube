@@ -1,4 +1,4 @@
-# from langchain.document_loaders import PyPDFLoader, DirectoryLoader, PDFMinerLoader, TextLoader
+from langchain.document_loaders import PyPDFLoader, DirectoryLoader, PDFMinerLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 # from langchain.embeddings import SentenceTransformerEmbeddings 
 from langchain_community.embeddings import SentenceTransformerEmbeddings
