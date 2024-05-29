@@ -1,15 +1,15 @@
 from flask import Flask, render_template, request
 from youtube_transcript_api import YouTubeTranscriptApi 
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from transformers import pipeline
-import torch
-import base64
-import textwrap
-from langchain.embeddings import SentenceTransformerEmbeddings
-from langchain. vectorstores import Chroma
-from langchain.llms import HuggingFacePipeline
-from langchain.chains import RetrievalQA
-from accelerate import disk_offload
+# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+# from transformers import pipeline
+# import torch
+# import base64
+# import textwrap
+# from langchain.embeddings import SentenceTransformerEmbeddings
+# from langchain. vectorstores import Chroma
+# from langchain.llms import HuggingFacePipeline
+# from langchain.chains import RetrievalQA
+# from accelerate import disk_offload
 import os
 
 
@@ -19,61 +19,61 @@ app = Flask(__name__)
 
 
 
-checkpoint = "MBZUAI/LaMini-T5-738M"
-tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+# checkpoint = "MBZUAI/LaMini-T5-738M"
+# tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
-model = AutoModelForSeq2SeqLM.from_pretrained(
-    checkpoint,
-    device_map="auto",
-    torch_dtype=torch.float32,
-    low_cpu_mem_usage = True,
-    offload_folder="offload"
+# model = AutoModelForSeq2SeqLM.from_pretrained(
+#     checkpoint,
+#     device_map="auto",
+#     torch_dtype=torch.float32,
+#     low_cpu_mem_usage = True,
+#     offload_folder="offload"
 
-)
-
-
-
-def llm_pipeline():
-    pipe = pipeline(
-        'text2text-generation',
-        model=model,
-        tokenizer=tokenizer,
-        max_length=256,
-        do_sample=True,
-        temperature=0.3,
-        top_p=0.95
-
-    )
-
-    local_llm=HuggingFacePipeline(pipeline=pipe)
-    return local_llm
-
-disk_offload(model=model, offload_dir="offload")
-
-
-def qa_llm():
-    llm=llm_pipeline()
-    embeddings=SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    db=Chroma(persist_directory="db",embedding_function=embeddings)
-    retriever=db.as_retriever()
-    qa=RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True
-    )
-
-    return qa
+# )
 
 
 
-def process_answer(instruction):
-    response=''
-    instruction=instruction
-    qa = qa_llm()
-    generated_text=qa(instruction)
-    answer=generated_text['result']
-    return answer, generated_text
+# def llm_pipeline():
+#     pipe = pipeline(
+#         'text2text-generation',
+#         model=model,
+#         tokenizer=tokenizer,
+#         max_length=256,
+#         do_sample=True,
+#         temperature=0.3,
+#         top_p=0.95
+
+#     )
+
+#     local_llm=HuggingFacePipeline(pipeline=pipe)
+#     return local_llm
+
+# disk_offload(model=model, offload_dir="offload")
+
+
+# def qa_llm():
+#     llm=llm_pipeline()
+#     embeddings=SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+#     db=Chroma(persist_directory="db",embedding_function=embeddings)
+#     retriever=db.as_retriever()
+#     qa=RetrievalQA.from_chain_type(
+#         llm=llm,
+#         chain_type="stuff",
+#         retriever=retriever,
+#         return_source_documents=True
+#     )
+
+#     return qa
+
+
+
+# def process_answer(instruction):
+#     response=''
+#     instruction=instruction
+#     qa = qa_llm()
+#     generated_text=qa(instruction)
+#     answer=generated_text['result']
+#     return answer, generated_text
 
 
 @app.route("/")
@@ -103,14 +103,14 @@ def save_transcript():
     return render_template('chat.html', message=message)
 
 
-@app.route("/get", methods=["GET","POST"])
-def chat():
-    msg = request.form["msg"]
-    input = msg
-    print(input)
-    result = process_answer(input)
-    print("Response : ",result["result"])
-    return str(result["result"])
+# @app.route("/get", methods=["GET","POST"])
+# def chat():
+#     msg = request.form["msg"]
+#     input = msg
+#     print(input)
+#     result = process_answer(input)
+#     print("Response : ",result["result"])
+#     return str(result["result"])
 
 
 
